@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tickets — Ticket Soporte</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1b2838;
+      color: #c7d5e0;
+      padding: 2rem;
+    }
+
+    h2 { margin-bottom: 1.5rem; }
+
+    .formulario {
+      background-color: #2a475e;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      max-width: 600px;
+    }
+
+    .formulario h3 { margin-bottom: 1rem; }
+
+    label {
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #4a7a9b;
+      border-radius: 4px;
+      background-color: #1b2838;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    textarea { resize: vertical; height: 80px; }
+
+    .btn-verde {
+      padding: 0.6rem 1.2rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-verde:hover { background-color: #45a049; }
+
+    .btn-rojo {
+      padding: 0.4rem 0.8rem;
+      background-color: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-rojo:hover { background-color: #a93226; }
+
+    .btn-amarillo {
+      padding: 0.4rem 0.8rem;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-amarillo:hover { background-color: #ca6f1e; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #2a475e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th {
+      background-color: #1b2838;
+      padding: 0.8rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    td {
+      padding: 0.8rem;
+      border-top: 1px solid #1b2838;
+      font-size: 0.9rem;
+    }
+
+    tr:hover { background-color: #344f63; }
+
+    #mensaje {
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .error { color: #ff6b6b; }
+    .exito { color: #90ee90; }
+
+    .nav {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav a {
+      color: #4caf50;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="nav">
+    <h2>🎫 Mis Tickets</h2>
+    <a href="/dashboard.html">← Volver</a>
+  </div>
+
+  <div id="mensaje"></div>
+
+  <div class="formulario">
+    <h3 id="form-titulo">Crear Ticket</h3>
+
+    <label>Título</label>
+    <input type="text" id="titulo" placeholder="Título del ticket" />
+
+    <label>Descripción</label>
+    <textarea id="descripcion" placeholder="Describe tu problema..."></textarea>
+
+    <label>Categoría</label>
+    <input type="text" id="categoria" placeholder="Ej: hardware, software..." />
+
+    <input type="hidden" id="editId" value="" />
+
+    <button class="btn-verde" onclick="guardar()">Guardar</button>
+    <button class="btn-amarillo" onclick="cancelarEdicion()" id="btn-cancelar" style="display:none; margin-left:0.5rem;">Cancelar</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th>Categoría</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-tickets"></tbody>
+  </table>
+
+  <script>
+    const token = localStorage.getItem('accessToken');
+    if (!token) window.location.href = '/login.html';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    const msg = document.getElementById('mensaje');
+
+    async function cargarTickets() {
+      try {
+        const res = await fetch('/tickets', { headers });
+        const data = await res.json();
+        const tbody = document.getElementById('tabla-tickets');
+        tbody.innerHTML = '';
+
+        if (!res.ok) {
+          msg.className = 'error';
+          msg.textContent = '❌ Error al cargar tickets';
+          return;
+        }
+
+        data.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${t.id}</td>
+              <td>${t.titulo}</td>
+              <td>${t.descripcion}</td>
+              <td>${t.categoria}</td>
+              <td>${t.estado}</td>
+              <td>
+                <button class="btn-amarillo" onclick="editar(${t.id}, '${t.titulo}', '${t.descripcion}', '${t.categoria}')">Editar</button>
+                <button class="btn-rojo" onclick="eliminar(${t.id})" style="margin-left:0.3rem;">Eliminar</button>
+              </td>
+            </tr>`;
+        });
+      } catch (e) {
+        msg.className = 'error';
+        msg.textContent = '❌ Error de conexión';
+      }
+    }
+
+    async function guardar() {
+      const titulo = document.getElementById('titulo').value;
+      const descripcion = document.getElementById('descripcion').value;
+      const categoria = document.getElementById('categoria').value;
+      const editId = document.getElementById('editId').value;
+
+      const body = { titulo, descripcion, categoria };
+      const url = editId ? `/tickets/${editId}` : '/tickets';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        msg.className = 'exito';
+        msg.textContent = editId ? '✅ Ticket actualizado' : '✅ Ticket creado';
+        limpiarFormulario();
+        cargarTickets();
+      } else {
+        msg.className = 'error';
+        msg.textContent = '❌ No se pudo guardar el ticket';
+      }
+    }
+
+    function editar(id, titulo, descripcion, categoria) {
+      document.getElementById('editId').value = id;
+      document.getElementById('titulo').value = titulo;
+      document.getElementById('descripcion').value = descripcion;
+      document.getElementById('categoria').value = categoria;
+      document.getElementById('form-titulo').textContent = 'Editar Ticket';
+      document.getElementById('btn-cancelar').style.display = 'inline-block';
+    }
+
+    async function eliminar(id) {
+      if (!confirm('¿Eliminar este ticket?')) return;
+
+      const res = await fetch(`/tickets/${id}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      if (res.ok) {
+        msg.className = 'exito';
+        msg.textContent = '✅ Ticket eliminado';
+        cargarTickets();
+      } else {
+        msg.className = 'error';
+        msg.textContent = '❌ No se pudo eliminar';
+      }
+    }
+
+    function cancelarEdicion() {
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('editId').value = '';
+      document.getElementById('titulo').value = '';
+      document.getElementById('descripcion').value = '';
+      document.getElementById('categoria').value = '';
+      document.getElementById('form-titulo').textContent = 'Crear Ticket';
+      document.getElementById('btn-cancelar').style.display = 'none';
+    }
+
+    cargarTickets();
+  </script>
+</body>
+</html>

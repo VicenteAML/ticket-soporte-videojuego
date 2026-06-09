@@ -16,5 +16,6 @@ router.post('/logout', verifyAccessToken, authValidators.logout, validate, authC
 router.get('/sesiones', verifyAccessToken, authController.listSesiones);
 router.delete('/sesiones/:id', verifyAccessToken, authController.revokeSesion);
 router.delete('/sesiones', verifyAccessToken, authController.revokeAllSesiones);
+router.post('/register', authController.register);
 
 module.exports = router;

@@ -35,7 +35,7 @@ const create = async (req, res) => {
       titulo,
       descripcion,
       categoria,
-      usuarioId: req.user.id
+      usuarioId: req.usuario.id
     });
     res.status(201).json(ticket);
   } catch (error) {

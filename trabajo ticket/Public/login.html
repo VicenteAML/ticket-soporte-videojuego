@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login — Ticket Soporte</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1b2838;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background-color: #2a475e;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      color: #c7d5e0;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      color: #c7d5e0;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #4a7a9b;
+      border-radius: 4px;
+      background-color: #1b2838;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover { background-color: #45a049; }
+
+    #mensaje {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .error { color: #ff6b6b; }
+    .exito { color: #90ee90; }
+
+    .link {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8f98a0;
+    }
+
+    .link a { color: #4caf50; text-decoration: none; }
+    .link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🎮 Iniciar Sesión</h2>
+
+    <label>Email</label>
+    <input type="email" id="email" placeholder="correo@ejemplo.com" />
+
+    <label>Contraseña</label>
+    <input type="password" id="password" placeholder="Tu contraseña" />
+
+    <button onclick="login()">Ingresar</button>
+
+    <div id="mensaje"></div>
+
+    <div class="link">
+      ¿No tienes cuenta? <a href="/register.html">Regístrate aquí</a>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const msg = document.getElementById('mensaje');
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('accessToken', data.data.accessToken);
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+          msg.className = 'exito';
+          msg.textContent = '✅ Login exitoso';
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+        } else {
+          msg.className = 'error';
+          msg.textContent = 'Credenciales incorrectas';
+        }
+      } catch (e) {
+        msg.className = 'error';
+        msg.textContent = 'Error de conexión';
+      }
+    }
+  </script>
+</body>
+</html>

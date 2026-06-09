@@ -10,6 +10,7 @@ app.set('trust proxy', 1);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
