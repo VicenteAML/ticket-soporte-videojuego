@@ -1,14 +1,14 @@
 'use strict';
-
 const express = require('express');
 const router = express.Router();
-const { getAll, getOne, create, update, remove } = require('../controllers/comentarioController');
+const comentarioController = require('../controllers/comentarioController');
 const { verifyAccessToken } = require('../middlewares/auth');
-//verifica que el usuario tiene la token para poder hacer cualquiera de estas acciones
-router.get('/', verifyAccessToken, getAll);
-router.get('/:id', verifyAccessToken, getOne);
-router.post('/', verifyAccessToken, create);
-router.put('/:id', verifyAccessToken, update);
-router.delete('/:id', verifyAccessToken, remove);
+const { validarCrearComentario } = require('../validators/comentarioValidator');
+
+router.get('/', verifyAccessToken, comentarioController.getAll);
+router.get('/:id', verifyAccessToken, comentarioController.getOne);
+router.post('/', verifyAccessToken, validarCrearComentario, comentarioController.create);
+router.put('/:id', verifyAccessToken, comentarioController.update);
+router.delete('/:id', verifyAccessToken, comentarioController.remove);
 
 module.exports = router;
