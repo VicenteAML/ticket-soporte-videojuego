@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Metricas</title>
+  <style>
+    body { background: #1b2838; color: #c6d4df; font-family: Arial, sans-serif; padding: 2rem; }
+    h1 { text-align: center; }
+    .grid { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin-top: 2rem; }
+    .metric { background: #2a475e; padding: 1.5rem; border-radius: 8px; width: 200px; text-align: center; }
+    .metric h2 { font-size: 2.5rem; margin: 0.5rem 0; color: #fff; }
+    .metric p { margin: 0; }
+    .baja { border-bottom: 4px solid #4caf50; }
+    .media { border-bottom: 4px solid #f39c12; }
+    .alta { border-bottom: 4px solid #e74c3c; }
+    .total { border-bottom: 4px solid #4a90d9; }
+    .nav { text-align: center; margin-bottom: 1rem; }
+    .nav a { color: #4a90d9; margin: 0 1rem; }
+    .error { color: #e74c3c; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>📊 Metricas de Tickets</h1>
+  <div class="nav">
+    <a href="/dashboard.html">← Dashboard</a>
+    <a href="/bandeja.html">Bandeja</a>
+  </div>
+  <div class="grid" id="metricas"><p>Cargando...</p></div>
+  <script>
+    const token = localStorage.getItem('accessToken');
+    if (!token) window.location.href = '/login.html';
+    const headers = { 'Authorization': 'Bearer ' + token };
+
+    async function cargarMetricas() {
+      const res = await fetch('/tickets/metricas', { headers });
+      if (!res.ok) { document.getElementById('metricas').innerHTML = '<p class="error">Error al cargar</p>'; return; }
+      const m = await res.json();
+      document.getElementById('metricas').innerHTML =
+        '<div class="metric total"><p>Total Tickets</p><h2>' + m.totalTickets + '</h2></div>' +
+        '<div class="metric total"><p>Abiertos Total</p><h2>' + m.abiertosTotales + '</h2></div>' +
+        '<div class="metric baja"><p>Prioridad Baja</p><h2>' + m.abiertosPorPrioridad.baja + '</h2></div>' +
+        '<div class="metric media"><p>Prioridad Media</p><h2>' + m.abiertosPorPrioridad.media + '</h2></div>' +
+        '<div class="metric alta"><p>Prioridad Alta</p><h2>' + m.abiertosPorPrioridad.alta + '</h2></div>';
+    }
+
+    cargarMetricas();
+  </script>
+</body>
+</html>
