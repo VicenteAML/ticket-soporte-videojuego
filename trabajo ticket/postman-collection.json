@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "Ticket Soporte API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Test User\", \"email\": \"test@test.cl\", \"password\": \"test1234\"}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"test@test.cl\", \"password\": \"test1234\"}"
+            }
+          }
+        },
+        {
+          "name": "Login - Error credenciales",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"test@test.cl\", \"password\": \"wrongpass\"}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh-token",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\": \"pegar-tu-refresh-token\"}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"test@test.cl\"}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/reset-password",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"resetToken\": \"pegar-el-token\", \"newPassword\": \"nuevaClave123\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Obtener todos los tickets",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Filtrar por estado",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets?estado=abierto",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Filtrar por prioridad",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets?prioridad=alta",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Obtener ticket por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Crear ticket",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/tickets",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"titulo\": \"Bug en login\", \"descripcion\": \"No carga la pagina\", \"categoria\": \"error\", \"prioridad\": \"alta\"}"
+            }
+          }
+        },
+        {
+          "name": "Crear ticket - Error prioridad invalida",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/tickets",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"titulo\": \"Test\", \"descripcion\": \"Test\", \"categoria\": \"test\", \"prioridad\": \"urgente\"}"
+            }
+          }
+        },
+        {
+          "name": "Crear ticket - Error campos vacios",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/tickets",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"titulo\": \"\", \"descripcion\": \"\", \"categoria\": \"\"}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar ticket",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/tickets/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\": \"cerrado\", \"tiempo_resolucion\": 30}"
+            }
+          }
+        },
+        {
+          "name": "Error - tiempo_resolucion en ticket abierto",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/tickets/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"tiempo_resolucion\": 30}"
+            }
+          }
+        },
+        {
+          "name": "Eliminar ticket",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/tickets/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Metricas",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets/metricas",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Error - Sin token (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tickets"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comentarios",
+      "item": [
+        {
+          "name": "Obtener todos los comentarios",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/comentarios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Filtrar por ticket",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/comentarios?ticketId=1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Obtener comentario por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/comentarios/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Crear comentario",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/comentarios",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Este es un comentario de prueba\", \"ticketId\": 1}"
+            }
+          }
+        },
+        {
+          "name": "Crear comentario - Error campos vacios",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/comentarios",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"\", \"ticketId\": \"\"}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar comentario",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/comentarios/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Comentario editado\"}"
+            }
+          }
+        },
+        {
+          "name": "Eliminar comentario",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/comentarios/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

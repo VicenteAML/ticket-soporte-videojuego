@@ -2,60 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard — Ticket Soporte</title>
+  <title>Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1b2838;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .card {
-      background-color: #2a475e;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-
-    h2 { color: #c7d5e0; margin-bottom: 1rem; }
-    p { color: #8f98a0; margin-bottom: 2rem; }
-
-    button {
-      padding: 0.7rem 2rem;
-      background-color: #c0392b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    button:hover { background-color: #a93226; }
+    body { background: #1b2838; color: #c6d4df; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .card { background: #2a475e; padding: 2rem; border-radius: 8px; width: 360px; text-align: center; }
+    h2 { margin-bottom: 1rem; }
+    .menu { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+    .menu a { color: #c6d4df; background: #1b2838; padding: 0.7rem; border-radius: 4px; text-decoration: none; border: 1px solid #4a90d9; }
+    .menu a:hover { background: #4a90d9; color: white; }
+    button { padding: 0.7rem 1.5rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-top: 1rem; }
+    button:hover { background: #c0392b; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>🎮 Bienvenido</h2>
-    <p id="usuario">Cargando...</p>
-    <button onclick="logout()">Cerrar Sesión</button>
+    <h2>🎮 Dashboard</h2>
+    <p>✅ Sesion activa</p>
+    <div class="menu">
+      <a href="/bandeja.html">📬 Bandeja de Tickets</a>
+      <a href="/tickets.html">🎫 Gestionar Tickets</a>
+      <a href="/comentarios.html">💬 Comentarios</a>
+      <a href="/metricas.html">📊 Metricas</a>
+    </div>
+    <button onclick="logout()">Cerrar Sesion</button>
   </div>
-
   <script>
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
+    if (!localStorage.getItem('accessToken')) {
       window.location.href = '/login.html';
     }
-
-    document.getElementById('usuario').textContent = 'Sesión activa ✅';
-
     function logout() {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');

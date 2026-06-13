@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Comentarios</title>
+  <style>
+    body { background: #1b2838; color: #c6d4df; font-family: Arial, sans-serif; padding: 2rem; }
+    h1 { text-align: center; }
+    .card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto 2rem auto; }
+    input, select, textarea { width: 100%; padding: 0.6rem; margin-bottom: 1rem; background: #1b2838; border: 1px solid #4a90d9; color: #c6d4df; border-radius: 4px; box-sizing: border-box; }
+    button { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.95rem; }
+    .btn-guardar { background: #4caf50; }
+    .btn-guardar:hover { background: #45a049; }
+    .btn-editar { background: #4a90d9; }
+    .btn-eliminar { background: #e74c3c; }
+    .btn-cancelar { background: #888; margin-left: 0.5rem; }
+    .exito { color: #4caf50; }
+    .error { color: #e74c3c; }
+    table { width: 100%; border-collapse: collapse; max-width: 800px; margin: 0 auto; }
+    th, td { padding: 0.7rem; border-bottom: 1px solid #4a90d9; text-align: left; }
+    th { background: #2a475e; }
+    .nav { text-align: center; margin-bottom: 1rem; }
+    .nav a { color: #4a90d9; margin: 0 1rem; }
+  </style>
+</head>
+<body>
+  <h1>💬 Comentarios</h1>
+  <div class="nav">
+    <a href="/dashboard.html">← Dashboard</a>
+    <a href="/tickets.html">Tickets</a>
+  </div>
+  <div class="card">
+    <input type="hidden" id="editId" />
+    <select id="ticketId"><option value="">Seleccionar ticket...</option></select>
+    <textarea id="contenido" placeholder="Escribe tu comentario..." rows="3"></textarea>
+    <button class="btn-guardar" onclick="guardar()">Guardar</button>
+    <button class="btn-cancelar" onclick="limpiarFormulario()">Cancelar</button>
+    <p id="msg"></p>
+  </div>
+  <table id="tabla"></table>
+  <script>
+    const token = localStorage.getItem('accessToken');
+    if (!token) window.location.href = '/login.html';
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    const msg = document.getElementById('msg');
+
+    async function cargarTickets() {
+      const res = await fetch('/tickets', { headers });
+      if (!res.ok) return;
+      const tickets = await res.json();
+      const sel = document.getElementById('ticketId');
+      tickets.forEach(t => {
+        sel.innerHTML += '<option value="' + t.id + '">' + t.id + ' - ' + t.titulo + '</option>';
+      });
+    }
+
+    async function cargarComentarios() {
+      const res = await fetch('/comentarios', { headers });
+      if (!res.ok) return;
+      const data = await res.json();
+      const tabla = document.getElementById('tabla');
+      tabla.innerHTML = '<tr><th>ID</th><th>Ticket</th><th>Contenido</th><th>Acciones</th></tr>';
+      data.forEach(c => {
+        tabla.innerHTML += '<tr><td>' + c.id + '</td><td>' + c.ticketId + '</td><td>' + c.contenido + '</td><td><button class="btn-editar" onclick="editar(' + c.id + ',\'' + c.contenido.replace(/'/g, "\\'") + '\',' + c.ticketId + ')">Editar</button> <button class="btn-eliminar" onclick="eliminar(' + c.id + ')">Eliminar</button></td></tr>';
+      });
+    }
+
+    async function guardar() {
+      const contenido = document.getElementById('contenido').value;
+      const ticketId = document.getElementById('ticketId').value;
+      const editId = document.getElementById('editId').value;
+      const body = editId ? { contenido } : { contenido, ticketId: parseInt(ticketId) };
+      const url = editId ? '/comentarios/' + editId : '/comentarios';
+      const method = editId ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
+      if (res.ok) {
+        msg.className = 'exito';
+        msg.textContent = editId ? '✅ Comentario actualizado' : '✅ Comentario creado';
+        limpiarFormulario();
+        cargarComentarios();
+      } else {
+        msg.className = 'error';
+        msg.textContent = '❌ No se pudo guardar el comentario';
+      }
+    }
+
+    function editar(id, contenido, ticketId) {
+      document.getElementById('editId').value = id;
+      document.getElementById('contenido').value = contenido;
+      document.getElementById('ticketId').value = ticketId;
+    }
+
+    async function eliminar(id) {
+      if (!confirm('¿Eliminar este comentario?')) return;
+      const res = await fetch('/comentarios/' + id, { method: 'DELETE', headers });
+      if (res.ok) {
+        msg.className = 'exito';
+        msg.textContent = '✅ Comentario eliminado';
+        cargarComentarios();
+      } else {
+        msg.className = 'error';
+        msg.textContent = '❌ Error al eliminar';
+      }
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('editId').value = '';
+      document.getElementById('contenido').value = '';
+      document.getElementById('ticketId').value = '';
+      msg.textContent = '';
+    }
+
+    cargarTickets();
+    cargarComentarios();
+  </script>
+</body>
+</html>
