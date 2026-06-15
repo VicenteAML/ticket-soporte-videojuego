@@ -1,6 +1,7 @@
 const express = require('express');
 const config = require('../config');
 const authRoutes = require('./authRoutes');
+const passwordRoutes = require('./passwordRoutes');
 const ticketRoutes = require('./ticketRoutes')
 const comentarioRoutes = require('./comentarioRoutes')
 
@@ -20,6 +21,7 @@ router.get('/health', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/password', passwordRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/comentarios', comentarioRoutes);
 
