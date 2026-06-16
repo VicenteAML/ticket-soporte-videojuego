@@ -1,5 +1,6 @@
 'use strict';
-const { Ticket } = require('../models');
+const { Op } = require('sequelize');
+const { Ticket, Usuario } = require('../models');
 
 const ESTADOS_PERMITIDOS = ['abierto', 'en_proceso', 'cerrado'];
 const PRIORIDADES_PERMITIDAS = ['baja', 'media', 'alta'];
@@ -9,7 +10,18 @@ const getAll = async (req, res) => {
     const where = {};
     if (req.query.estado) where.estado = req.query.estado;
     if (req.query.prioridad) where.prioridad = req.query.prioridad;
-    const tickets = await Ticket.findAll({ where });
+
+    const queryOptions = { where };
+
+    if (req.query.nombre) {
+      queryOptions.include = [{
+        model: Usuario,
+        where: { nombre: { [Op.like]: '%' + req.query.nombre + '%' } },
+        attributes: ['nombre', 'email']
+      }];
+    }
+
+    const tickets = await Ticket.findAll(queryOptions);
     res.json(tickets);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener los tickets' });
@@ -47,18 +59,32 @@ const update = async (req, res) => {
   try {
     const ticket = await Ticket.findByPk(req.params.id);
     if (!ticket) return res.status(404).json({ message: 'Ticket no encontrado' });
-    if (req.body.estado && !ESTADOS_PERMITIDOS.includes(req.body.estado)) {
-      return res.status(422).json({ message: 'Estado invalido. Valores permitidos: ' + ESTADOS_PERMITIDOS.join(', ') });
+
+    if (req.body.estado) {
+      if (!ESTADOS_PERMITIDOS.includes(req.body.estado)) {
+        return res.status(422).json({ message: 'Estado invalido. Valores permitidos: ' + ESTADOS_PERMITIDOS.join(', ') });
+      }
+      const TRANSICIONES = {
+        abierto: ['en_proceso'],
+        en_proceso: ['cerrado'],
+        cerrado: []
+      };
+      if (!TRANSICIONES[ticket.estado].includes(req.body.estado)) {
+        return res.status(409).json({ message: `No se puede cambiar estado de '${ticket.estado}' a '${req.body.estado}'` });
+      }
     }
+
     if (req.body.prioridad && !PRIORIDADES_PERMITIDAS.includes(req.body.prioridad)) {
       return res.status(422).json({ message: 'Prioridad invalida. Valores permitidos: ' + PRIORIDADES_PERMITIDAS.join(', ') });
     }
+
     if (req.body.tiempo_resolucion) {
       const estadoFinal = req.body.estado || ticket.estado;
       if (estadoFinal !== 'cerrado') {
         return res.status(422).json({ message: 'Solo tickets cerrados pueden registrar tiempo de resolucion' });
       }
     }
+
     await ticket.update(req.body);
     res.json(ticket);
   } catch (error) {

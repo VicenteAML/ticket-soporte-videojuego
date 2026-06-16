@@ -8,6 +8,7 @@
     h1 { text-align: center; }
     .filtros { text-align: center; margin: 1rem 0; }
     .filtros select { padding: 0.5rem; background: #2a475e; color: #c6d4df; border: 1px solid #4a90d9; border-radius: 4px; margin: 0 0.5rem; }
+    .filtros input { padding: 0.5rem; background: #2a475e; color: #c6d4df; border: 1px solid #4a90d9; border-radius: 4px; margin: 0 0.5rem; }
     .bandeja { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2rem; }
     .ticket-card { background: #2a475e; border-radius: 8px; padding: 1.2rem; width: 260px; cursor: pointer; transition: transform 0.2s; }
     .ticket-card:hover { transform: scale(1.03); }
@@ -46,6 +47,7 @@
       <option value="media">Media</option>
       <option value="alta">Alta</option>
     </select>
+    <input type="text" id="filtroNombre" placeholder="🔍 Buscar por nombre" oninput="cargarBandeja()" />
   </div>
   <div class="bandeja" id="bandeja"></div>
   <script>
@@ -56,9 +58,11 @@
     async function cargarBandeja() {
       const estado = document.getElementById('filtroEstado').value;
       const prioridad = document.getElementById('filtroPrioridad').value;
+      const nombre = document.getElementById('filtroNombre').value;
       let url = '/tickets?';
       if (estado) url += 'estado=' + estado + '&';
-      if (prioridad) url += 'prioridad=' + prioridad;
+      if (prioridad) url += 'prioridad=' + prioridad + '&';
+      if (nombre) url += 'nombre=' + encodeURIComponent(nombre);
       const res = await fetch(url, { headers });
       if (!res.ok) { document.getElementById('bandeja').innerHTML = '<p class="error">Error al cargar tickets</p>'; return; }
       const data = await res.json();
@@ -68,11 +72,13 @@
       data.forEach(t => {
         const est = t.estado || 'abierto';
         const pri = t.prioridad || 'media';
+        const agente = t.Usuario ? t.Usuario.nombre : '';
         bandeja.innerHTML +=
           '<div class="ticket-card" onclick="window.location.href=\'/detalle-ticket.html?id=' + t.id + '\'">' +
           '<h3>' + t.titulo + '</h3>' +
           '<p>📂 ' + t.categoria + '</p>' +
           '<p>' + t.descripcion + '</p>' +
+          (agente ? '<p>👤 ' + agente + '</p>' : '') +
           '<span class="estado ' + est + '">' + est + '</span> ' +
           '<span class="prioridad-tag p-' + pri + '">' + pri + '</span>' +
           '</div>';
