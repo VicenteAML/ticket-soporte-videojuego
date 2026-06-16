@@ -1,0 +1,538 @@
+{
+  "info": {
+    "name": "Ticket Soporte API",
+    "_postman_id": "ticket-soporte-collection-v1",
+    "description": "Colección completa para la API de Ticket Soporte. Incluye flujos de auth, CRUD de tickets y comentarios, y casos de error (401, 409, 422).\n\n**Instrucciones:**\n1. Configura la variable `baseUrl` con tu URL (ej: http://localhost:3000)\n2. Ejecuta 'Login' — el token se guarda automáticamente en la variable `token`\n3. El resto de requests lo usan automáticamente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "URL base de la API. Cambiar a la URL de Railway en producción."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Access token JWT. Se llena automáticamente al ejecutar Login."
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "Refresh token. Se llena automáticamente al ejecutar Login."
+    },
+    {
+      "key": "ticketId",
+      "value": "1",
+      "type": "string",
+      "description": "ID del ticket a usar en requests de detalle/update/delete."
+    },
+    {
+      "key": "comentarioId",
+      "value": "1",
+      "type": "string",
+      "description": "ID del comentario a usar en requests de detalle/update/delete."
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Endpoints públicos: registro, login y refresh de token.",
+      "item": [
+        {
+          "name": "Registro de usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario Prueba\",\n  \"email\": \"prueba@ejemplo.cl\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Registra un nuevo usuario. Devuelve 201 si todo está bien.\n\n**Error esperado:** Si el email ya existe → 409 Conflict."
+          }
+        },
+        {
+          "name": "Login (guarda token automáticamente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('token', data.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.data.refreshToken);",
+                  "  console.log('✅ Token guardado correctamente');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profesor@ejemplo.cl\",\n  \"password\": \"demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión y guarda el token JWT en la variable `token` automáticamente mediante un script de test.\n\n**Usar credenciales demo:** profesor@ejemplo.cl / demo1234"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Renueva el access token usando el refresh token."
+          }
+        },
+        {
+          "name": "[ERROR 409] Registro con email duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Otro Usuario\",\n  \"email\": \"profesor@ejemplo.cl\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Intenta registrar un email que ya existe.\n\n**Respuesta esperada:** 409 Conflict — El email ya está registrado."
+          }
+        },
+        {
+          "name": "[ERROR 401] Login con credenciales incorrectas",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profesor@ejemplo.cl\",\n  \"password\": \"contrasenaMal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Intenta iniciar sesión con contraseña incorrecta.\n\n**Respuesta esperada:** 401 Unauthorized."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "description": "CRUD completo de tickets. Todos los endpoints requieren token JWT en el header Authorization.",
+      "item": [
+        {
+          "name": "Listar todos los tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"]
+            },
+            "description": "Devuelve todos los tickets. Acepta query params opcionales:\n- `?estado=abierto`\n- `?prioridad=alta`\n- `?nombre=Juan` (filtra por nombre de agente)"
+          }
+        },
+        {
+          "name": "Listar tickets filtrados por estado",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets?estado=abierto",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"],
+              "query": [
+                { "key": "estado", "value": "abierto" }
+              ]
+            },
+            "description": "Filtra tickets por estado. Valores válidos: abierto, en_proceso, cerrado."
+          }
+        },
+        {
+          "name": "Ver un ticket por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Obtiene el detalle de un ticket específico."
+          }
+        },
+        {
+          "name": "Crear ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Mi juego no inicia\",\n  \"descripcion\": \"Al hacer doble clic no pasa nada, intenté reinstalar.\",\n  \"categoria\": \"tecnico\",\n  \"prioridad\": \"alta\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"]
+            },
+            "description": "Crea un nuevo ticket. Campos obligatorios: titulo, descripcion, categoria."
+          }
+        },
+        {
+          "name": "Actualizar estado del ticket",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"en_proceso\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Cambia el estado del ticket. Transiciones permitidas:\n- abierto → en_proceso\n- en_proceso → cerrado\n\nNo se puede retroceder."
+          }
+        },
+        {
+          "name": "Cerrar ticket con tiempo de resolución",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"cerrado\",\n  \"tiempo_resolucion\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Cierra un ticket y registra el tiempo de resolución en minutos. El ticket debe estar en estado 'en_proceso'."
+          }
+        },
+        {
+          "name": "Eliminar ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Elimina un ticket permanentemente."
+          }
+        },
+        {
+          "name": "Métricas de tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/metricas",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "metricas"]
+            },
+            "description": "Devuelve totales de tickets abiertos agrupados por prioridad."
+          }
+        },
+        {
+          "name": "[ERROR 401] Listar tickets sin token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"]
+            },
+            "description": "Intenta listar tickets sin enviar el header Authorization.\n\n**Respuesta esperada:** 401 Unauthorized — Token de acceso requerido."
+          }
+        },
+        {
+          "name": "[ERROR 422] Crear ticket sin campos obligatorios",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"\",\n  \"descripcion\": \"\",\n  \"categoria\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"]
+            },
+            "description": "Intenta crear un ticket con campos vacíos.\n\n**Respuesta esperada:** 400 — Datos inválidos con lista de errores."
+          }
+        },
+        {
+          "name": "[ERROR 409] Transición de estado inválida",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"abierto\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Intenta cambiar un ticket a un estado no permitido (ej: cerrado → abierto).\n\n**Respuesta esperada:** 409 Conflict — No se puede cambiar estado."
+          }
+        },
+        {
+          "name": "[ERROR 422] tiempo_resolucion en ticket no cerrado",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tiempo_resolucion\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets", "{{ticketId}}"]
+            },
+            "description": "Intenta registrar tiempo de resolución en un ticket que no está cerrado.\n\n**Respuesta esperada:** 422 Unprocessable Entity."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comentarios",
+      "description": "CRUD de comentarios asociados a tickets. Todos requieren token JWT.",
+      "item": [
+        {
+          "name": "Listar comentarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comentarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios"]
+            },
+            "description": "Devuelve todos los comentarios."
+          }
+        },
+        {
+          "name": "Ver comentario por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comentarios/{{comentarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios", "{{comentarioId}}"]
+            },
+            "description": "Obtiene un comentario específico por su ID."
+          }
+        },
+        {
+          "name": "Crear comentario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": \"Hemos recibido tu reporte y lo estamos revisando.\",\n  \"ticketId\": {{ticketId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comentarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios"]
+            },
+            "description": "Crea un comentario asociado a un ticket. Campos obligatorios: contenido, ticketId."
+          }
+        },
+        {
+          "name": "Actualizar comentario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": \"Comentario editado correctamente.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comentarios/{{comentarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios", "{{comentarioId}}"]
+            },
+            "description": "Edita el contenido de un comentario existente."
+          }
+        },
+        {
+          "name": "Eliminar comentario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comentarios/{{comentarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios", "{{comentarioId}}"]
+            },
+            "description": "Elimina un comentario por su ID."
+          }
+        },
+        {
+          "name": "[ERROR 400] Crear comentario sin contenido",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": \"\",\n  \"ticketId\": {{ticketId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comentarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios"]
+            },
+            "description": "Intenta crear un comentario con contenido vacío.\n\n**Respuesta esperada:** 400 — El contenido es obligatorio."
+          }
+        },
+        {
+          "name": "[ERROR 401] Crear comentario sin token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": \"Comentario sin auth\",\n  \"ticketId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comentarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["comentarios"]
+            },
+            "description": "Intenta crear un comentario sin enviar el token JWT.\n\n**Respuesta esperada:** 401 Unauthorized."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "description": "Endpoints públicos de estado del servidor.",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Endpoint público que confirma que el servidor está corriendo. No requiere token."
+          }
+        },
+        {
+          "name": "Bienvenida API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Endpoint raíz público. Devuelve nombre y versión de la API."
+          }
+        }
+      ]
+    }
+  ]
+}

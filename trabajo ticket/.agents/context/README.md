@@ -39,17 +39,39 @@ cp .env.example .env
 
 ## Variables de entorno
 
-Editar el archivo `.env` con los valores deseados:
+### En local
 
-| Variable              | Descripción                          | Valor por defecto                          |
+Copiar `.env.example` a `.env` y editar los valores:
+
+| Variable              | Descripción                          | Valor local                                |
 |-----------------------|--------------------------------------|--------------------------------------------|
 | `NODE_ENV`            | Entorno de ejecución                 | `development`                              |
 | `PORT`                | Puerto del servidor                  | `3000`                                     |
-| `JWT_ACCESS_SECRET`   | Secreto para access tokens           | *(cambiar en producción)*                  |
-| `JWT_REFRESH_SECRET`  | Secreto para refresh tokens          | *(cambiar en producción)*                  |
+| `JWT_ACCESS_SECRET`   | Secreto para access tokens           | cualquier texto largo                      |
+| `JWT_REFRESH_SECRET`  | Secreto para refresh tokens          | cualquier texto largo distinto             |
 | `JWT_ACCESS_EXPIRES_IN` | Expiración del access token        | `15m`                                      |
 | `JWT_REFRESH_EXPIRES_IN`| Expiración del refresh token       | `7d`                                       |
 | `DB_STORAGE`          | Ruta de la base de datos SQLite      | `./database.sqlite`                        |
+| `CORS_ORIGIN`         | Origen permitido para CORS           | `http://localhost:3000`                    |
+
+### En Railway (producción)
+
+**No subir `.env` al repositorio** — configurar las variables directamente en el panel de Railway:
+
+1. Ir a tu proyecto en [railway.app](https://railway.app)
+2. Abrir la pestaña **Variables**
+3. Agregar cada variable con sus valores de producción:
+
+| Variable              | Valor en producción                              |
+|-----------------------|--------------------------------------------------|
+| `NODE_ENV`            | `production`                                     |
+| `PORT`                | Railway lo asigna automáticamente                |
+| `JWT_ACCESS_SECRET`   | Cadena aleatoria de 64+ caracteres               |
+| `JWT_REFRESH_SECRET`  | Cadena aleatoria diferente de 64+ caracteres     |
+| `JWT_ACCESS_EXPIRES_IN` | `15m`                                          |
+| `JWT_REFRESH_EXPIRES_IN`| `7d`                                           |
+| `DB_STORAGE`          | `./database.sqlite`                              |
+| `CORS_ORIGIN`         | URL de tu app en Railway (ej: `https://tu-app.up.railway.app`) |
 
 ## Ejecución local
 

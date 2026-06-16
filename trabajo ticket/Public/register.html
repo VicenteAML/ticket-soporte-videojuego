@@ -85,7 +85,7 @@
 
     <button onclick="registrar()">Registrarse</button>
     <p style="text-align:center; margin-top:12px;">
-    ¿Ya tienes cuenta? <a href="login.html" style="color:#4caf50;">Iniciar sesión</a>
+      ¿Ya tienes cuenta? <a href="login.html" style="color:#4caf50;">Iniciar sesión</a>
     </p>
 
     <div id="mensaje"></div>
@@ -109,10 +109,11 @@
 
         if (res.ok) {
           msg.className = 'exito';
-          msg.textContent = 'Usuario registrado exitosamente';
+          msg.textContent = '✅ Usuario registrado exitosamente. Redirigiendo...';
+          setTimeout(() => { window.location.href = '/login.html'; }, 1500);
         } else {
           msg.className = 'error';
-          msg.textContent = 'Usuario no se ha podido registrar';
+          msg.textContent = data.message || 'Usuario no se ha podido registrar';
         }
       } catch (e) {
         msg.className = 'error';

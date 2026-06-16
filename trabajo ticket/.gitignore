@@ -4,3 +4,5 @@ database.sqlite
 *.log
 .DS_Store
 coverage/
+# Origen permitido para CORS (en producción: URL de Railway)
+CORS_ORIGIN=http://localhost:3000

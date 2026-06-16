@@ -119,10 +119,10 @@
           localStorage.setItem('refreshToken', data.data.refreshToken);
           msg.className = 'exito';
           msg.textContent = '✅ Login exitoso';
-        setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
         } else {
           msg.className = 'error';
-          msg.textContent = 'Credenciales incorrectas';
+          msg.textContent = data.message || 'Credenciales incorrectas';
         }
       } catch (e) {
         msg.className = 'error';
