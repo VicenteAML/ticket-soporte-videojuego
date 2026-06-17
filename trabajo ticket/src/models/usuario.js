@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(120),
         allowNull: false,
       },
+      rol: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        defaultValue: 'usuario',
+      },
       resetToken: { type: DataTypes.STRING },
       resetTokenExpiry: { type: DataTypes.DATE },
     },
@@ -59,6 +64,7 @@ module.exports = (sequelize, DataTypes) => {
       id: this.id,
       email: this.email,
       nombre: this.nombre,
+      rol: this.rol,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

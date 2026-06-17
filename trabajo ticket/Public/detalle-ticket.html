@@ -4,33 +4,68 @@
   <meta charset="UTF-8" />
   <title>Detalle de Ticket</title>
   <style>
-    body { background: #1b2838; color: #c6d4df; font-family: Arial, sans-serif; padding: 2rem; }
-    h1, h2 { text-align: center; }
-    .card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto 1.5rem auto; }
-    .info p { margin: 0.5rem 0; }
-    .info strong { color: #fff; }
-    select, textarea, input { width: 100%; padding: 0.6rem; margin-bottom: 1rem; background: #1b2838; border: 1px solid #4a90d9; color: #c6d4df; border-radius: 4px; box-sizing: border-box; }
-    button { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.95rem; margin-right: 0.5rem; }
-    .btn-estado { background: #f39c12; }
-    .btn-guardar { background: #4caf50; }
-    .btn-guardar:hover { background: #45a049; }
-    .exito { color: #4caf50; }
-    .error { color: #e74c3c; }
-    .comentario { background: #1b2838; padding: 0.8rem; border-radius: 6px; margin-bottom: 0.8rem; }
-    .comentario small { color: #888; }
-    .nav { text-align: center; margin-bottom: 1rem; }
-    .nav a { color: #4a90d9; margin: 0 1rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #1b2838; color: #c6d4df; padding: 2rem; }
+    h1 { text-align: center; color: #fff; font-size: 1.5rem; margin-bottom: 1.5rem; }
+
+    .nav { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; }
+    .nav-btn {
+      display: inline-block; padding: 0.5rem 1.2rem; background: #1b2838; color: #4caf50;
+      border: 1px solid #4caf50; border-radius: 4px; text-decoration: none;
+      font-weight: bold; font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+    }
+    .nav-btn:hover { background: #4caf50; color: white; }
+
+    .card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 620px; margin: 0 auto 1.5rem auto; }
+    .card h2 { color: #fff; margin-bottom: 1rem; font-size: 1.05rem; }
+    .info-row { display: flex; margin: 0.5rem 0; font-size: 0.92rem; }
+    .info-row .lbl { color: #8f98a0; min-width: 130px; }
+    .info-row .val { color: #c7d5e0; }
+    .tag { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+    .abierto    { background: #1a5c1a; color: #4caf50; border: 1px solid #4caf50; }
+    .en_proceso { background: #5c4000; color: #f39c12; border: 1px solid #f39c12; }
+    .cerrado    { background: #5c1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
+
+    select, input, textarea {
+      width: 100%; padding: 0.6rem 0.8rem; background: #1b2838; border: 1px solid #3a5a6e;
+      color: #c6d4df; border-radius: 4px; font-size: 0.95rem; margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: #4caf50; }
+    textarea { resize: vertical; }
+
+    .btn {
+      padding: 0.65rem 1.3rem; border: none; border-radius: 4px; font-size: 0.95rem;
+      font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+    .btn-estado  { background: #f39c12; color: white; box-shadow: 0 2px 6px rgba(243,156,18,0.35); }
+    .btn-estado:hover  { background: #d68910; transform: translateY(-1px); }
+    .btn-guardar { background: #4caf50; color: white; box-shadow: 0 2px 6px rgba(76,175,80,0.35); }
+    .btn-guardar:hover { background: #388e3c; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .exito { color: #90ee90; } .error { color: #ff6b6b; }
+    #msgEstado, #msgComentario { margin-top: 0.7rem; font-size: 0.9rem; }
+
+    .comentario { background: #1b2838; padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 0.7rem; border-left: 3px solid #4caf50; }
+    .comentario p   { font-size: 0.9rem; }
+    .comentario small { color: #8f98a0; font-size: 0.78rem; }
     .campo-tiempo { display: none; }
   </style>
 </head>
 <body>
-  <h1>🎫 Detalle de Ticket</h1>
+  <h1>Detalle de Ticket</h1>
+
   <div class="nav">
-    <a href="/bandeja.html">← Bandeja</a>
-    <a href="/dashboard.html">Dashboard</a>
+    <a href="/tickets.html"    class="nav-btn">Mis Tickets</a>
+    <a id="navBandeja" href="/bandeja.html" class="nav-btn" style="display:none">Bandeja</a>
+    <a href="/dashboard.html"  class="nav-btn">Dashboard</a>
   </div>
-  <div class="card info" id="ticketInfo"><p>Cargando...</p></div>
-  <div class="card">
+
+  <div class="card" id="ticketInfo"><p style="color:#8f98a0">Cargando...</p></div>
+
+  <!-- Solo visible para admins -->
+  <div class="card" id="cardEstado" style="display:none">
     <h2>Cambiar Estado</h2>
     <select id="nuevoEstado">
       <option value="abierto">Abierto</option>
@@ -40,88 +75,113 @@
     <div class="campo-tiempo" id="campoTiempo">
       <input type="number" id="tiempoResolucion" placeholder="Tiempo de resolucion (minutos)" />
     </div>
-    <button class="btn-estado" onclick="cambiarEstado()">Cambiar Estado</button>
+    <button class="btn btn-estado" onclick="cambiarEstado()">Aplicar cambio de estado</button>
     <p id="msgEstado"></p>
   </div>
+
   <div class="card">
-    <h2>💬 Comentarios</h2>
-    <div id="listaComentarios"></div>
+    <h2>Comentarios</h2>
+    <div id="listaComentarios"><p style="color:#8f98a0">Cargando...</p></div>
     <textarea id="nuevoComentario" placeholder="Escribe un comentario..." rows="3"></textarea>
-    <button class="btn-guardar" onclick="agregarComentario()">Comentar</button>
+    <button class="btn btn-guardar" onclick="agregarComentario()">Agregar comentario</button>
     <p id="msgComentario"></p>
   </div>
+
   <script>
     const token = localStorage.getItem('accessToken');
     if (!token) window.location.href = '/login.html';
     const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
-    const params = new URLSearchParams(window.location.search);
+    const params   = new URLSearchParams(window.location.search);
     const ticketId = params.get('id');
-    if (!ticketId) window.location.href = '/bandeja.html';
+    if (!ticketId) window.location.href = '/tickets.html';
 
-    document.getElementById('nuevoEstado').addEventListener('change', function() {
+    function getPayload() {
+      try { return JSON.parse(atob(token.split('.')[1])); } catch { return {}; }
+    }
+    const payload = getPayload();
+    const esAdmin = payload.rol === 'admin' || payload.rol === 'superadmin';
+
+    if (esAdmin) {
+      document.getElementById('cardEstado').style.display = 'block';
+      document.getElementById('navBandeja').style.display = 'inline-block';
+    }
+
+    document.getElementById('nuevoEstado').addEventListener('change', function () {
       document.getElementById('campoTiempo').style.display = this.value === 'cerrado' ? 'block' : 'none';
     });
 
     async function cargarTicket() {
       const res = await fetch('/tickets/' + ticketId, { headers });
-      if (!res.ok) { document.getElementById('ticketInfo').innerHTML = '<p class="error">Ticket no encontrado</p>'; return; }
+      const box = document.getElementById('ticketInfo');
+      if (!res.ok) { box.innerHTML = '<p class="error">Ticket no encontrado</p>'; return; }
       const t = await res.json();
-      document.getElementById('ticketInfo').innerHTML =
-        '<p><strong>Titulo:</strong> ' + t.titulo + '</p>' +
-        '<p><strong>Descripcion:</strong> ' + t.descripcion + '</p>' +
-        '<p><strong>Categoria:</strong> ' + t.categoria + '</p>' +
-        '<p><strong>Estado:</strong> ' + t.estado + '</p>' +
-        '<p><strong>Prioridad:</strong> ' + t.prioridad + '</p>' +
-        (t.tiempo_resolucion ? '<p><strong>Tiempo resolucion:</strong> ' + t.tiempo_resolucion + ' min</p>' : '');
-      document.getElementById('nuevoEstado').value = t.estado;
-      if (t.estado === 'cerrado') document.getElementById('campoTiempo').style.display = 'block';
+      const creador = t.Usuario ? t.Usuario.nombre : null;
+      const est = t.estado || 'abierto';
+      box.innerHTML =
+        '<div class="info-row"><span class="lbl">Titulo</span><span class="val">' + escapeHtml(t.titulo) + '</span></div>' +
+        '<div class="info-row"><span class="lbl">Descripcion</span><span class="val">' + escapeHtml(t.descripcion) + '</span></div>' +
+        '<div class="info-row"><span class="lbl">Categoria</span><span class="val">' + escapeHtml(t.categoria) + '</span></div>' +
+        (creador && esAdmin ? '<div class="info-row"><span class="lbl">Creado por</span><span class="val">' + escapeHtml(creador) + '</span></div>' : '') +
+        '<div class="info-row"><span class="lbl">Estado</span><span class="val"><span class="tag ' + est + '">' + est.replace('_', ' ') + '</span></span></div>' +
+        (t.tiempo_resolucion ? '<div class="info-row"><span class="lbl">Tiempo resolucion</span><span class="val">' + t.tiempo_resolucion + ' min</span></div>' : '');
+      if (esAdmin) {
+        document.getElementById('nuevoEstado').value = t.estado;
+        if (t.estado === 'cerrado') document.getElementById('campoTiempo').style.display = 'block';
+      }
     }
 
     async function cambiarEstado() {
       const estado = document.getElementById('nuevoEstado').value;
-      const body = { estado };
+      const body   = { estado };
       if (estado === 'cerrado') {
         const tiempo = document.getElementById('tiempoResolucion').value;
         if (tiempo) body.tiempo_resolucion = parseInt(tiempo);
       }
-      const res = await fetch('/tickets/' + ticketId, { method: 'PUT', headers, body: JSON.stringify(body) });
+      const res  = await fetch('/tickets/' + ticketId, { method: 'PUT', headers, body: JSON.stringify(body) });
       const msgEl = document.getElementById('msgEstado');
       if (res.ok) {
-        msgEl.className = 'exito';
-        msgEl.textContent = '✅ Estado actualizado';
+        msgEl.className   = 'exito';
+        msgEl.textContent = 'Estado actualizado correctamente';
         cargarTicket();
       } else {
         const data = await res.json();
-        msgEl.className = 'error';
-        msgEl.textContent = '❌ ' + data.message;
+        msgEl.className   = 'error';
+        msgEl.textContent = data.message || 'Error al cambiar estado';
       }
     }
 
     async function cargarComentarios() {
-      const res = await fetch('/comentarios?ticketId=' + ticketId, { headers });
-      if (!res.ok) return;
-      const comentarios = await res.json();
+      const res  = await fetch('/comentarios?ticketId=' + ticketId, { headers });
       const lista = document.getElementById('listaComentarios');
-      if (comentarios.length === 0) { lista.innerHTML = '<p>No hay comentarios aun.</p>'; return; }
+      if (!res.ok) { lista.innerHTML = '<p class="error">Error al cargar comentarios</p>'; return; }
+      const data = await res.json();
+      if (data.length === 0) { lista.innerHTML = '<p style="color:#8f98a0">No hay comentarios aun.</p>'; return; }
       lista.innerHTML = '';
-      comentarios.forEach(c => {
-        lista.innerHTML += '<div class="comentario"><p>' + c.contenido + '</p><small>ID: ' + c.id + '</small></div>';
+      data.forEach(c => {
+        lista.innerHTML += '<div class="comentario"><p>' + escapeHtml(c.contenido) + '</p><small>Comentario #' + c.id + '</small></div>';
       });
     }
 
     async function agregarComentario() {
-      const contenido = document.getElementById('nuevoComentario').value;
-      const res = await fetch('/comentarios', { method: 'POST', headers, body: JSON.stringify({ contenido, ticketId: parseInt(ticketId) }) });
-      const msgEl = document.getElementById('msgComentario');
+      const contenido = document.getElementById('nuevoComentario').value.trim();
+      const msgEl     = document.getElementById('msgComentario');
+      if (!contenido) { msgEl.className = 'error'; msgEl.textContent = 'Escribe algo antes de comentar'; return; }
+      const res  = await fetch('/comentarios', { method: 'POST', headers, body: JSON.stringify({ contenido, ticketId: parseInt(ticketId) }) });
       if (res.ok) {
-        msgEl.className = 'exito';
-        msgEl.textContent = '✅ Comentario agregado';
+        msgEl.className   = 'exito';
+        msgEl.textContent = 'Comentario agregado';
         document.getElementById('nuevoComentario').value = '';
         cargarComentarios();
+        setTimeout(() => { msgEl.textContent = ''; }, 2000);
       } else {
-        msgEl.className = 'error';
-        msgEl.textContent = '❌ Error al comentar';
+        const data = await res.json();
+        msgEl.className   = 'error';
+        msgEl.textContent = data.message || 'Error al comentar';
       }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     cargarTicket();

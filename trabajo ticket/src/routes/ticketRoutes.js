@@ -1,15 +1,23 @@
 'use strict';
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 const ticketController = require('../controllers/ticketController');
 const { verifyAccessToken } = require('../middlewares/auth');
+const verifyRole = require('../middlewares/verifyRole');
 const { validarCrearTicket } = require('../validators/ticketValidator');
 
-router.get('/metricas', verifyAccessToken, ticketController.metricas);
-router.get('/', verifyAccessToken, ticketController.getAll);
+// Metricas — solo admin/superadmin
+router.get('/metricas', verifyAccessToken, verifyRole('admin', 'superadmin'), ticketController.metricas);
+
+// Lectura — todos los roles autenticados
+router.get('/',    verifyAccessToken, ticketController.getAll);
 router.get('/:id', verifyAccessToken, ticketController.getOne);
+
+// Crear — todos los roles autenticados
 router.post('/', verifyAccessToken, validarCrearTicket, ticketController.create);
-router.put('/:id', verifyAccessToken, ticketController.update);
-router.delete('/:id', verifyAccessToken, ticketController.remove);
+
+// Modificar / Eliminar — solo admin/superadmin
+router.put('/:id',    verifyAccessToken, verifyRole('admin', 'superadmin'), ticketController.update);
+router.delete('/:id', verifyAccessToken, verifyRole('admin', 'superadmin'), ticketController.remove);
 
 module.exports = router;

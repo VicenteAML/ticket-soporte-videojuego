@@ -2,278 +2,155 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Tickets — Ticket Soporte</title>
+  <title>Mis Tickets — Ticket Soporte</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #1b2838; color: #c6d4df; padding: 2rem; }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1b2838;
-      color: #c7d5e0;
-      padding: 2rem;
+    .nav { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+    .nav-btn {
+      display: inline-block; padding: 0.5rem 1.2rem; background: #1b2838; color: #4caf50;
+      border: 1px solid #4caf50; border-radius: 4px; text-decoration: none;
+      font-weight: bold; font-size: 0.9rem; transition: background 0.2s, color 0.2s;
     }
+    .nav-btn:hover { background: #4caf50; color: white; }
 
-    h2 { margin-bottom: 1.5rem; }
+    /* Titulo grande */
+    .page-title { text-align: center; font-size: 2rem; color: #fff; font-weight: bold; margin-bottom: 0.4rem; }
+    .page-sub   { text-align: center; color: #8f98a0; margin-bottom: 2rem; font-size: 0.95rem; }
 
-    .formulario {
-      background-color: #2a475e;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      max-width: 600px;
+    /* Formulario */
+    .form-card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 560px; margin: 0 auto 2.5rem auto; }
+    .form-card h2 { color: #fff; margin-bottom: 1rem; font-size: 1.1rem; }
+    label { color: #8f98a0; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; }
+    input, select, textarea {
+      width: 100%; padding: 0.6rem 0.8rem; background: #1b2838; border: 1px solid #3a5a6e;
+      color: #c6d4df; border-radius: 4px; font-size: 0.95rem; margin-bottom: 1rem;
+      transition: border-color 0.2s;
     }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #4caf50; }
+    textarea { resize: vertical; }
 
-    .formulario h3 { margin-bottom: 1rem; }
-
-    label {
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 0.3rem;
+    .btn {
+      padding: 0.7rem 1.4rem; background: #4caf50; color: white; border: none;
+      border-radius: 4px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.35);
     }
+    .btn:hover { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(76,175,80,0.5); }
+    .btn:active { transform: translateY(0); }
 
-    input, textarea, select {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #4a7a9b;
-      border-radius: 4px;
-      background-color: #1b2838;
-      color: #fff;
-      margin-bottom: 1rem;
+    #msgForm { margin-top: 0.8rem; font-size: 0.9rem; }
+    .exito { color: #90ee90; } .error { color: #ff6b6b; }
+
+    /* Lista tickets */
+    .lista-titulo { font-size: 1.3rem; color: #fff; text-align: center; margin-bottom: 1rem; }
+    .tickets-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    .ticket-card {
+      background: #2a475e; border-radius: 8px; padding: 1.2rem; width: 260px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
     }
+    .ticket-card:hover { transform: scale(1.03); border-color: #4caf50; box-shadow: 0 4px 16px rgba(76,175,80,0.2); }
+    .ticket-card h3 { color: #fff; font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .ticket-card p  { font-size: 0.85rem; color: #8f98a0; margin: 0.2rem 0; }
+    .tag { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 12px; font-size: 0.78rem; font-weight: bold; margin-top: 0.4rem; }
+    .abierto    { background: #1a5c1a; color: #4caf50; border: 1px solid #4caf50; }
+    .en_proceso { background: #5c4000; color: #f39c12; border: 1px solid #f39c12; }
+    .cerrado    { background: #5c1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
 
-    textarea { resize: vertical; height: 80px; }
-
-    .btn-verde {
-      padding: 0.6rem 1.2rem;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-
-    .btn-verde:hover { background-color: #45a049; }
-
-    .btn-rojo {
-      padding: 0.4rem 0.8rem;
-      background-color: #c0392b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn-rojo:hover { background-color: #a93226; }
-
-    .btn-amarillo {
-      padding: 0.4rem 0.8rem;
-      background-color: #e67e22;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn-amarillo:hover { background-color: #ca6f1e; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #2a475e;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th {
-      background-color: #1b2838;
-      padding: 0.8rem;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    td {
-      padding: 0.8rem;
-      border-top: 1px solid #1b2838;
-      font-size: 0.9rem;
-    }
-
-    tr:hover { background-color: #344f63; }
-
-    #mensaje {
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .error { color: #ff6b6b; }
-    .exito { color: #90ee90; }
-
-    .nav {
-      margin-bottom: 1.5rem;
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .nav a {
-      color: #4caf50;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-
-    .nav a:hover { text-decoration: underline; }
+    .empty { text-align: center; color: #8f98a0; padding: 2rem; }
   </style>
 </head>
 <body>
-
   <div class="nav">
-    <h2>🎫 Mis Tickets</h2>
-    <a href="/dashboard.html">← Volver</a>
+    <a href="/dashboard.html" class="nav-btn">Volver al Dashboard</a>
+    <a href="/comentarios.html" class="nav-btn">Comentarios</a>
   </div>
 
-  <div id="mensaje"></div>
+  <h1 class="page-title">Mis Tickets</h1>
+  <p class="page-sub">Gestiona y crea tus tickets de soporte</p>
 
-  <div class="formulario">
-    <h3 id="form-titulo">Crear Ticket</h3>
+  <div class="form-card">
+    <h2>Crear nuevo ticket</h2>
 
-    <label>Título</label>
-    <input type="text" id="titulo" placeholder="Título del ticket" />
+    <label>Titulo</label>
+    <input type="text" id="titulo" placeholder="Describe brevemente el problema" />
 
-    <label>Descripción</label>
-    <textarea id="descripcion" placeholder="Describe tu problema..."></textarea>
+    <label>Descripcion</label>
+    <textarea id="descripcion" rows="3" placeholder="Detalla el problema..."></textarea>
 
-    <label>Categoría</label>
-    <input type="text" id="categoria" placeholder="Ej: hardware, software..." />
+    <label>Categoria</label>
+    <input type="text" id="categoria" placeholder="Ej: Error de juego, Cuenta, Pago..." />
 
-    <input type="hidden" id="editId" value="" />
-
-    <button class="btn-verde" onclick="guardar()">Guardar</button>
-    <button class="btn-amarillo" onclick="cancelarEdicion()" id="btn-cancelar" style="display:none; margin-left:0.5rem;">Cancelar</button>
+    <button class="btn" onclick="crearTicket()">Enviar Ticket</button>
+    <p id="msgForm"></p>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Título</th>
-        <th>Descripción</th>
-        <th>Categoría</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tabla-tickets"></tbody>
-  </table>
+  <p class="lista-titulo">Historial de tickets enviados</p>
+  <div class="tickets-grid" id="listaTickets"><p class="empty">Cargando...</p></div>
 
   <script>
     const token = localStorage.getItem('accessToken');
     if (!token) window.location.href = '/login.html';
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    const msg = document.getElementById('mensaje');
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
 
     async function cargarTickets() {
-      try {
-        const res = await fetch('/tickets', { headers });
-        const data = await res.json();
-        const tbody = document.getElementById('tabla-tickets');
-        tbody.innerHTML = '';
-
-        if (!res.ok) {
-          msg.className = 'error';
-          msg.textContent = '❌ Error al cargar tickets';
-          return;
-        }
-
-        data.forEach(t => {
-          tbody.innerHTML += `
-            <tr>
-              <td>${t.id}</td>
-              <td>${t.titulo}</td>
-              <td>${t.descripcion}</td>
-              <td>${t.categoria}</td>
-              <td>${t.estado}</td>
-              <td>
-                <button class="btn-amarillo" onclick="editar(${t.id}, '${t.titulo}', '${t.descripcion}', '${t.categoria}')">Editar</button>
-                <button class="btn-rojo" onclick="eliminar(${t.id})" style="margin-left:0.3rem;">Eliminar</button>
-              </td>
-            </tr>`;
-        });
-      } catch (e) {
-        msg.className = 'error';
-        msg.textContent = '❌ Error de conexión';
-      }
+      const res  = await fetch('/tickets', { headers });
+      const grid = document.getElementById('listaTickets');
+      if (!res.ok) { grid.innerHTML = '<p class="empty" style="color:#ff6b6b">Error al cargar tickets</p>'; return; }
+      const data = await res.json();
+      if (data.length === 0) { grid.innerHTML = '<p class="empty">Aun no tienes tickets creados.</p>'; return; }
+      grid.innerHTML = '';
+      data.forEach(t => {
+        const est = t.estado || 'abierto';
+        const div = document.createElement('div');
+        div.className = 'ticket-card';
+        div.onclick = () => { window.location.href = '/detalle-ticket.html?id=' + t.id; };
+        div.innerHTML =
+          '<h3>' + escapeHtml(t.titulo) + '</h3>' +
+          '<p>' + escapeHtml(t.descripcion) + '</p>' +
+          '<p><strong>Cat:</strong> ' + escapeHtml(t.categoria) + '</p>' +
+          '<span class="tag ' + est + '">' + est.replace('_', ' ') + '</span>';
+        grid.appendChild(div);
+      });
     }
 
-    async function guardar() {
-      const titulo = document.getElementById('titulo').value;
-      const descripcion = document.getElementById('descripcion').value;
-      const categoria = document.getElementById('categoria').value;
-      const editId = document.getElementById('editId').value;
+    async function crearTicket() {
+      const titulo      = document.getElementById('titulo').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const categoria   = document.getElementById('categoria').value.trim();
+      const msg         = document.getElementById('msgForm');
 
-      const body = { titulo, descripcion, categoria };
-      const url = editId ? `/tickets/${editId}` : '/tickets';
-      const method = editId ? 'PUT' : 'POST';
+      if (!titulo || !descripcion || !categoria) {
+        msg.className   = 'error';
+        msg.textContent = 'Completa todos los campos antes de enviar';
+        return;
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers,
-        body: JSON.stringify(body)
+      const res  = await fetch('/tickets', {
+        method: 'POST', headers,
+        body: JSON.stringify({ titulo, descripcion, categoria })
       });
+      const data = await res.json();
 
       if (res.ok) {
-        msg.className = 'exito';
-        msg.textContent = editId ? '✅ Ticket actualizado' : '✅ Ticket creado';
-        limpiarFormulario();
+        msg.className   = 'exito';
+        msg.textContent = 'Ticket creado correctamente';
+        document.getElementById('titulo').value      = '';
+        document.getElementById('descripcion').value = '';
+        document.getElementById('categoria').value   = '';
         cargarTickets();
+        setTimeout(() => { msg.textContent = ''; }, 2500);
       } else {
-        msg.className = 'error';
-        msg.textContent = '❌ No se pudo guardar el ticket';
+        msg.className   = 'error';
+        msg.textContent = data.message || 'Error al crear ticket';
       }
     }
 
-    function editar(id, titulo, descripcion, categoria) {
-      document.getElementById('editId').value = id;
-      document.getElementById('titulo').value = titulo;
-      document.getElementById('descripcion').value = descripcion;
-      document.getElementById('categoria').value = categoria;
-      document.getElementById('form-titulo').textContent = 'Editar Ticket';
-      document.getElementById('btn-cancelar').style.display = 'inline-block';
-    }
-
-    async function eliminar(id) {
-      if (!confirm('¿Eliminar este ticket?')) return;
-
-      const res = await fetch(`/tickets/${id}`, {
-        method: 'DELETE',
-        headers
-      });
-
-      if (res.ok) {
-        msg.className = 'exito';
-        msg.textContent = '✅ Ticket eliminado';
-        cargarTickets();
-      } else {
-        msg.className = 'error';
-        msg.textContent = '❌ No se pudo eliminar';
-      }
-    }
-
-    function cancelarEdicion() {
-      limpiarFormulario();
-    }
-
-    function limpiarFormulario() {
-      document.getElementById('editId').value = '';
-      document.getElementById('titulo').value = '';
-      document.getElementById('descripcion').value = '';
-      document.getElementById('categoria').value = '';
-      document.getElementById('form-titulo').textContent = 'Crear Ticket';
-      document.getElementById('btn-cancelar').style.display = 'none';
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     cargarTickets();

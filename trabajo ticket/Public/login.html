@@ -2,133 +2,103 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Login — Ticket Soporte</title>
+  <title>Iniciar Sesion — Ticket Soporte</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1b2838;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .card {
-      background-color: #2a475e;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-
-    h2 {
-      color: #c7d5e0;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      color: #c7d5e0;
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-
+    body { font-family: Arial, sans-serif; background: #1b2838; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .card { background: #2a475e; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
+    h2 { color: #c7d5e0; text-align: center; margin-bottom: 1.5rem; font-size: 1.4rem; letter-spacing: 0.5px; }
+    label { color: #8f98a0; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; }
     input {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #4a7a9b;
-      border-radius: 4px;
-      background-color: #1b2838;
-      color: #fff;
-      margin-bottom: 1rem;
+      width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #3a5a6e; border-radius: 4px;
+      background: #1b2838; color: #fff; margin-bottom: 0.3rem; font-size: 0.95rem;
+      transition: border-color 0.2s;
     }
-
-    button {
-      width: 100%;
-      padding: 0.7rem;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
+    input:focus { outline: none; border-color: #4caf50; }
+    .campo-error { color: #ff6b6b; font-size: 0.8rem; margin-bottom: 0.8rem; display: none; }
+    .campo-error.visible { display: block; }
+    .btn {
+      width: 100%; padding: 0.75rem; background: #4caf50; color: white; border: none;
+      border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.4);
     }
-
-    button:hover { background-color: #45a049; }
-
-    #mensaje {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .error { color: #ff6b6b; }
-    .exito { color: #90ee90; }
-
-    .link {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #8f98a0;
-    }
-
+    .btn:hover { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(76,175,80,0.5); }
+    .btn:active { transform: translateY(0); }
+    #mensaje { margin-top: 1rem; text-align: center; font-size: 0.9rem; }
+    .error { color: #ff6b6b; } .exito { color: #90ee90; }
+    .link { margin-top: 1rem; text-align: center; font-size: 0.85rem; color: #8f98a0; }
     .link a { color: #4caf50; text-decoration: none; }
     .link a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>🎮 Iniciar Sesión</h2>
+    <h2>Iniciar Sesion</h2>
 
-    <label>Email</label>
+    <label for="email">Email</label>
     <input type="email" id="email" placeholder="correo@ejemplo.com" />
+    <span class="campo-error" id="err-email"></span>
 
-    <label>Contraseña</label>
-    <input type="password" id="password" placeholder="Tu contraseña" />
+    <label for="password">Contrasena</label>
+    <input type="password" id="password" placeholder="Tu contrasena" />
+    <span class="campo-error" id="err-password"></span>
 
-    <button onclick="login()">Ingresar</button>
+    <button class="btn" onclick="login()">Ingresar</button>
 
     <div id="mensaje"></div>
-
-    <div class="link">
-      ¿No tienes cuenta? <a href="/register.html">Regístrate aquí</a>
-    </div>
+    <div class="link">No tienes cuenta? <a href="/register.html">Registrate aqui</a></div>
   </div>
 
   <script>
+    function limpiarErrores() {
+      document.querySelectorAll('.campo-error').forEach(e => { e.textContent = ''; e.classList.remove('visible'); });
+      document.getElementById('mensaje').textContent = '';
+    }
+
+    function mostrarCampoError(id, texto) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.classList.add('visible');
+    }
+
     async function login() {
-      const email = document.getElementById('email').value;
+      limpiarErrores();
+      const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const msg = document.getElementById('mensaje');
+      const msg      = document.getElementById('mensaje');
+      let hayError   = false;
+
+      if (!email)    { mostrarCampoError('err-email',    'El email es obligatorio');    hayError = true; }
+      if (!password) { mostrarCampoError('err-password', 'La contrasena es obligatoria'); hayError = true; }
+      if (hayError) return;
 
       try {
-        const res = await fetch('/auth/login', {
+        const res  = await fetch('/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
-
         const data = await res.json();
 
         if (res.ok) {
-          localStorage.setItem('accessToken', data.data.accessToken);
+          localStorage.setItem('accessToken',  data.data.accessToken);
           localStorage.setItem('refreshToken', data.data.refreshToken);
-          msg.className = 'exito';
-          msg.textContent = '✅ Login exitoso';
-          setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+          msg.className   = 'exito';
+          msg.textContent = 'Sesion iniciada. Redirigiendo...';
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 900);
         } else {
-          msg.className = 'error';
+          msg.className   = 'error';
           msg.textContent = data.message || 'Credenciales incorrectas';
         }
-      } catch (e) {
-        msg.className = 'error';
-        msg.textContent = 'Error de conexión';
+      } catch {
+        msg.className   = 'error';
+        msg.textContent = 'Error de conexion';
       }
     }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   </script>
 </body>
 </html>

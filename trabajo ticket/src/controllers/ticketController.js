@@ -2,26 +2,26 @@
 const { Op } = require('sequelize');
 const { Ticket, Usuario } = require('../models');
 
-const ESTADOS_PERMITIDOS = ['abierto', 'en_proceso', 'cerrado'];
+const ESTADOS_PERMITIDOS   = ['abierto', 'en_proceso', 'cerrado'];
 const PRIORIDADES_PERMITIDAS = ['baja', 'media', 'alta'];
 
 const getAll = async (req, res) => {
   try {
     const where = {};
-    if (req.query.estado) where.estado = req.query.estado;
+
+    // Usuarios comunes solo ven sus propios tickets
+    if (req.usuario.rol === 'usuario') where.usuarioId = req.usuario.id;
+
+    if (req.query.estado)    where.estado    = req.query.estado;
     if (req.query.prioridad) where.prioridad = req.query.prioridad;
 
-    const queryOptions = { where };
-
+    const includeOptions = { model: Usuario, attributes: ['nombre', 'email'] };
     if (req.query.nombre) {
-      queryOptions.include = [{
-        model: Usuario,
-        where: { nombre: { [Op.like]: '%' + req.query.nombre + '%' } },
-        attributes: ['nombre', 'email']
-      }];
+      includeOptions.where    = { nombre: { [Op.like]: '%' + req.query.nombre + '%' } };
+      includeOptions.required = true;
     }
 
-    const tickets = await Ticket.findAll(queryOptions);
+    const tickets = await Ticket.findAll({ where, include: [includeOptions] });
     res.json(tickets);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener los tickets' });
@@ -30,7 +30,9 @@ const getAll = async (req, res) => {
 
 const getOne = async (req, res) => {
   try {
-    const ticket = await Ticket.findByPk(req.params.id);
+    const ticket = await Ticket.findByPk(req.params.id, {
+      include: [{ model: Usuario, attributes: ['nombre', 'email'] }]
+    });
     if (!ticket) return res.status(404).json({ message: 'Ticket no encontrado' });
     res.json(ticket);
   } catch (error) {
@@ -64,11 +66,7 @@ const update = async (req, res) => {
       if (!ESTADOS_PERMITIDOS.includes(req.body.estado)) {
         return res.status(422).json({ message: 'Estado invalido. Valores permitidos: ' + ESTADOS_PERMITIDOS.join(', ') });
       }
-      const TRANSICIONES = {
-        abierto: ['en_proceso'],
-        en_proceso: ['cerrado'],
-        cerrado: []
-      };
+      const TRANSICIONES = { abierto: ['en_proceso'], en_proceso: ['cerrado'], cerrado: [] };
       if (!TRANSICIONES[ticket.estado].includes(req.body.estado)) {
         return res.status(409).json({ message: `No se puede cambiar estado de '${ticket.estado}' a '${req.body.estado}'` });
       }
@@ -111,9 +109,7 @@ const metricas = async (req, res) => {
     tickets.forEach(t => {
       if (t.estado === 'abierto' || t.estado === 'en_proceso') {
         abiertosTotales++;
-        if (porPrioridad[t.prioridad] !== undefined) {
-          porPrioridad[t.prioridad]++;
-        }
+        if (porPrioridad[t.prioridad] !== undefined) porPrioridad[t.prioridad]++;
       }
     });
     res.json({ totalTickets: tickets.length, abiertosTotales, abiertosPorPrioridad: porPrioridad });

@@ -2,113 +2,289 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Comentarios</title>
+  <title>Comentarios — Ticket Soporte</title>
   <style>
-    body { background: #1b2838; color: #c6d4df; font-family: Arial, sans-serif; padding: 2rem; }
-    h1 { text-align: center; }
-    .card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto 2rem auto; }
-    input, select, textarea { width: 100%; padding: 0.6rem; margin-bottom: 1rem; background: #1b2838; border: 1px solid #4a90d9; color: #c6d4df; border-radius: 4px; box-sizing: border-box; }
-    button { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.95rem; }
-    .btn-guardar { background: #4caf50; }
-    .btn-guardar:hover { background: #45a049; }
-    .btn-editar { background: #4a90d9; }
-    .btn-eliminar { background: #e74c3c; }
-    .btn-cancelar { background: #888; margin-left: 0.5rem; }
-    .exito { color: #4caf50; }
-    .error { color: #e74c3c; }
-    table { width: 100%; border-collapse: collapse; max-width: 800px; margin: 0 auto; }
-    th, td { padding: 0.7rem; border-bottom: 1px solid #4a90d9; text-align: left; }
-    th { background: #2a475e; }
-    .nav { text-align: center; margin-bottom: 1rem; }
-    .nav a { color: #4a90d9; margin: 0 1rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #1b2838; color: #c6d4df; padding: 2rem; }
+    h1 { text-align: center; color: #fff; font-size: 1.6rem; margin-bottom: 1.5rem; }
+
+    .nav { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; }
+    .nav-btn {
+      display: inline-block; padding: 0.5rem 1.2rem; background: #1b2838; color: #4caf50;
+      border: 1px solid #4caf50; border-radius: 4px; text-decoration: none;
+      font-weight: bold; font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+    }
+    .nav-btn:hover { background: #4caf50; color: white; }
+
+    /* Form comentario */
+    .form-card { background: #2a475e; padding: 1.5rem; border-radius: 8px; max-width: 640px; margin: 0 auto 2rem auto; }
+    .form-card h2 { color: #fff; margin-bottom: 1rem; font-size: 1.05rem; }
+    .ticket-sel { color: #4caf50; font-size: 0.9rem; margin-bottom: 1rem; font-weight: bold; }
+.ticket-sel.vacio { color: #8f98a0; font-style: italic; font-weight: normal; }
+    textarea {
+      width: 100%; padding: 0.6rem 0.8rem; background: #1b2838; border: 1px solid #3a5a6e;
+      color: #c6d4df; border-radius: 4px; font-size: 0.95rem; resize: vertical;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { outline: none; border-color: #4caf50; }
+    .btn-row { display: flex; gap: 0.7rem; margin-top: 0.8rem; }
+    .btn {
+      padding: 0.65rem 1.3rem; border: none; border-radius: 4px; font-size: 0.95rem;
+      font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+    .btn-guardar { background: #4caf50; color: white; box-shadow: 0 2px 6px rgba(76,175,80,0.35); }
+    .btn-guardar:hover { background: #388e3c; transform: translateY(-1px); }
+    .btn-cancelar { background: #3a5a6e; color: #c6d4df; }
+    .btn-cancelar:hover { background: #4a7a8e; }
+    #msgForm { margin-top: 0.7rem; font-size: 0.9rem; }
+    .exito { color: #90ee90; } .error-msg { color: #ff6b6b; }
+
+    /* Seccion filtros */
+    .seccion-titulo { font-size: 1rem; color: #fff; font-weight: bold; margin: 0 0 0.8rem 0; text-align: center; }
+    .seccion-sub    { font-size: 0.8rem; color: #8f98a0; text-align: center; margin-bottom: 1rem; }
+    .filtros {
+      display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center;
+      background: #2a475e; padding: 1rem; border-radius: 8px; max-width: 640px; margin: 0 auto 1rem auto;
+    }
+    .filtros input, .filtros select {
+      padding: 0.55rem 0.8rem; background: #1b2838; border: 1px solid #3a5a6e;
+      color: #c6d4df; border-radius: 4px; font-size: 0.9rem; min-width: 170px;
+      transition: border-color 0.2s;
+    }
+    .filtros input:focus, .filtros select:focus { outline: none; border-color: #4caf50; }
+    .btn-filtro {
+      padding: 0.55rem 1.2rem; background: #4caf50; color: white; border: none;
+      border-radius: 4px; font-weight: bold; cursor: pointer;
+      box-shadow: 0 2px 6px rgba(76,175,80,0.35);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-filtro:hover { background: #388e3c; transform: translateY(-1px); }
+
+    /* Tabla de tickets */
+    .tabla-wrap { max-width: 760px; margin: 0 auto 2.5rem auto; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #2a475e; padding: 0.7rem 0.8rem; text-align: left; font-size: 0.85rem; color: #8f98a0; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 0.65rem 0.8rem; border-bottom: 1px solid #2a475e; font-size: 0.9rem; }
+    tr.ticket-row { cursor: pointer; transition: background 0.15s; }
+    tr.ticket-row:hover { background: #2a475e; }
+    tr.ticket-row.seleccionado { background: #1a3d1a; border-left: 3px solid #4caf50; }
+    .tag { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 10px; font-size: 0.78rem; font-weight: bold; }
+    .abierto    { background: #1a5c1a; color: #4caf50; border: 1px solid #4caf50; }
+    .en_proceso { background: #5c4000; color: #f39c12; border: 1px solid #f39c12; }
+    .cerrado    { background: #5c1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
+
+    /* Tabla comentarios */
+    .seccion-com { max-width: 760px; margin: 0 auto; }
+    .btn-editar  { background: #2a5a8e; color: white; padding: 0.3rem 0.7rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.82rem; margin-right: 0.3rem; transition: background 0.2s; }
+    .btn-editar:hover  { background: #1a4a7e; }
+    .btn-eliminar { background: #7e1a1a; color: white; padding: 0.3rem 0.7rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.82rem; transition: background 0.2s; }
+    .btn-eliminar:hover { background: #a02020; }
+    .empty-row td { color: #8f98a0; font-style: italic; }
   </style>
 </head>
 <body>
-  <h1>💬 Comentarios</h1>
+  <h1>Comentarios</h1>
+
   <div class="nav">
-    <a href="/dashboard.html">← Dashboard</a>
-    <a href="/tickets.html">Tickets</a>
+    <a href="/dashboard.html" class="nav-btn">Volver al Dashboard</a>
+    <a href="/tickets.html"   class="nav-btn">Mis Tickets</a>
   </div>
-  <div class="card">
+
+  <!-- Formulario comentario -->
+  <div class="form-card">
+    <h2>Nuevo comentario</h2>
     <input type="hidden" id="editId" />
-    <select id="ticketId"><option value="">Seleccionar ticket...</option></select>
-    <textarea id="contenido" placeholder="Escribe tu comentario..." rows="3"></textarea>
-    <button class="btn-guardar" onclick="guardar()">Guardar</button>
-    <button class="btn-cancelar" onclick="limpiarFormulario()">Cancelar</button>
-    <p id="msg"></p>
+    <div id="ticketSelDisplay" class="ticket-sel vacio">Selecciona un ticket de la tabla de abajo</div>
+    <input type="hidden" id="ticketIdSel" />
+    <textarea id="contenido" rows="3" placeholder="Escribe tu comentario..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-guardar" onclick="guardar()">Guardar comentario</button>
+      <button class="btn btn-cancelar" onclick="limpiar()">Cancelar</button>
+    </div>
+    <p id="msgForm"></p>
   </div>
-  <table id="tabla"></table>
+
+  <!-- Filtros tickets -->
+  <p class="seccion-titulo">Seleccionar ticket</p>
+  <p class="seccion-sub">Haz clic en una fila para seleccionar el ticket al que quieres comentar</p>
+  <div class="filtros">
+    <input  type="text"   id="buscarTitulo"   placeholder="Buscar por titulo..." />
+    <select id="filtroEstado" onchange="cargarTickets()">
+      <option value="">Todos los estados</option>
+      <option value="abierto">Abierto</option>
+      <option value="en_proceso">En Proceso</option>
+      <option value="cerrado">Cerrado</option>
+    </select>
+    <select id="filtroPrioridad" onchange="cargarTickets()">
+      <option value="">Todas las prioridades</option>
+      <option value="baja">Baja</option>
+      <option value="media">Media</option>
+      <option value="alta">Alta</option>
+    </select>
+    <button class="btn-filtro" onclick="cargarTickets()">Buscar</button>
+  </div>
+
+  <!-- Tabla tickets -->
+  <div class="tabla-wrap">
+    <table id="tablaTickets">
+      <thead><tr><th>#</th><th>Titulo</th><th>Estado</th><th>Categoria</th></tr></thead>
+      <tbody id="cuerpoTickets"><tr class="empty-row"><td colspan="4">Cargando tickets...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- Tabla comentarios -->
+  <div class="seccion-com">
+    <p class="seccion-titulo" style="margin-top:1rem">Comentarios registrados</p>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Ticket</th><th>Contenido</th><th>Acciones</th></tr></thead>
+        <tbody id="cuerpoComentarios"><tr class="empty-row"><td colspan="4">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <script>
     const token = localStorage.getItem('accessToken');
     if (!token) window.location.href = '/login.html';
     const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
-    const msg = document.getElementById('msg');
+    const msg = document.getElementById('msgForm');
+    let ticketSeleccionadoId    = null;
+    let ticketSeleccionadoNombre = null;
 
+    /* ── Cargar tickets ── */
     async function cargarTickets() {
-      const res = await fetch('/tickets', { headers });
-      if (!res.ok) return;
-      const tickets = await res.json();
-      const sel = document.getElementById('ticketId');
-      tickets.forEach(t => {
-        sel.innerHTML += '<option value="' + t.id + '">' + t.id + ' - ' + t.titulo + '</option>';
+      const titulo    = document.getElementById('buscarTitulo').value.trim();
+      const estado    = document.getElementById('filtroEstado').value;
+      const prioridad = document.getElementById('filtroPrioridad').value;
+
+      const params = new URLSearchParams();
+      if (estado)    params.append('estado',    estado);
+      if (prioridad) params.append('prioridad', prioridad);
+
+      const res  = await fetch('/tickets?' + params.toString(), { headers });
+      const tbody = document.getElementById('cuerpoTickets');
+      if (!res.ok) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Error al cargar tickets</td></tr>'; return; }
+      let data = await res.json();
+
+      // Filtro local por titulo
+      if (titulo) data = data.filter(t => t.titulo.toLowerCase().includes(titulo.toLowerCase()));
+
+      if (data.length === 0) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No hay tickets con esos filtros</td></tr>'; return; }
+
+      tbody.innerHTML = '';
+      data.forEach(t => {
+        const est = t.estado || 'abierto';
+        const tr  = document.createElement('tr');
+        tr.className = 'ticket-row';
+        tr.dataset.id     = t.id;
+        tr.dataset.titulo = t.titulo;
+        tr.innerHTML =
+          '<td>' + t.id + '</td>' +
+          '<td>' + escapeHtml(t.titulo) + '</td>' +
+          '<td><span class="tag ' + est + '">' + est.replace('_', ' ') + '</span></td>' +
+          '<td>' + escapeHtml(t.categoria) + '</td>';
+        tr.onclick = () => seleccionarTicket(t.id, t.titulo, tr);
+        tbody.appendChild(tr);
       });
     }
 
+    function seleccionarTicket(id, titulo, fila) {
+      document.querySelectorAll('.ticket-row').forEach(r => r.classList.remove('seleccionado'));
+      fila.classList.add('seleccionado');
+      ticketSeleccionadoId     = id;
+      ticketSeleccionadoNombre = titulo;
+      const disp = document.getElementById('ticketSelDisplay');
+      disp.textContent = 'Ticket seleccionado: #' + id + ' — ' + titulo;
+      disp.classList.remove('vacio');
+      document.getElementById('ticketIdSel').value = id;
+      document.getElementById('contenido').focus();
+    }
+
+    /* ── Cargar comentarios ── */
     async function cargarComentarios() {
-      const res = await fetch('/comentarios', { headers });
-      if (!res.ok) return;
+      const res   = await fetch('/comentarios', { headers });
+      const tbody = document.getElementById('cuerpoComentarios');
+      if (!res.ok) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Error al cargar comentarios</td></tr>'; return; }
       const data = await res.json();
-      const tabla = document.getElementById('tabla');
-      tabla.innerHTML = '<tr><th>ID</th><th>Ticket</th><th>Contenido</th><th>Acciones</th></tr>';
+      if (data.length === 0) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No hay comentarios registrados</td></tr>'; return; }
+      tbody.innerHTML = '';
       data.forEach(c => {
-        tabla.innerHTML += '<tr><td>' + c.id + '</td><td>' + c.ticketId + '</td><td>' + c.contenido + '</td><td><button class="btn-editar" onclick="editar(' + c.id + ',\'' + c.contenido.replace(/'/g, "\\'") + '\',' + c.ticketId + ')">Editar</button> <button class="btn-eliminar" onclick="eliminar(' + c.id + ')">Eliminar</button></td></tr>';
+        tbody.innerHTML +=
+          '<tr>' +
+          '<td>' + c.id + '</td>' +
+          '<td>#' + c.ticketId + '</td>' +
+          '<td>' + escapeHtml(c.contenido) + '</td>' +
+          '<td>' +
+            '<button class="btn-editar" onclick="editarComentario(' + c.id + ',\'' + escapeJs(c.contenido) + '\',' + c.ticketId + ')">Editar</button>' +
+            '<button class="btn-eliminar" onclick="eliminarComentario(' + c.id + ')">Eliminar</button>' +
+          '</td></tr>';
       });
     }
 
+    /* ── Guardar ── */
     async function guardar() {
-      const contenido = document.getElementById('contenido').value;
-      const ticketId = document.getElementById('ticketId').value;
-      const editId = document.getElementById('editId').value;
-      const body = editId ? { contenido } : { contenido, ticketId: parseInt(ticketId) };
-      const url = editId ? '/comentarios/' + editId : '/comentarios';
+      const contenido = document.getElementById('contenido').value.trim();
+      const ticketId  = document.getElementById('ticketIdSel').value;
+      const editId    = document.getElementById('editId').value;
+      msg.textContent = '';
+
+      if (!contenido) { msg.className = 'error-msg'; msg.textContent = 'El contenido es obligatorio'; return; }
+      if (!editId && !ticketId) { msg.className = 'error-msg'; msg.textContent = 'Selecciona un ticket de la tabla'; return; }
+
+      const body   = editId ? { contenido } : { contenido, ticketId: parseInt(ticketId) };
+      const url    = editId ? '/comentarios/' + editId : '/comentarios';
       const method = editId ? 'PUT' : 'POST';
+
       const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
       if (res.ok) {
-        msg.className = 'exito';
-        msg.textContent = editId ? '✅ Comentario actualizado' : '✅ Comentario creado';
-        limpiarFormulario();
+        msg.className   = 'exito';
+        msg.textContent = editId ? 'Comentario actualizado' : 'Comentario creado';
+        limpiar();
         cargarComentarios();
       } else {
-        msg.className = 'error';
-        msg.textContent = '❌ No se pudo guardar el comentario';
+        const data = await res.json();
+        msg.className   = 'error-msg';
+        msg.textContent = data.message || 'Error al guardar';
       }
     }
 
-    function editar(id, contenido, ticketId) {
-      document.getElementById('editId').value = id;
+    function editarComentario(id, contenido, ticketId) {
+      document.getElementById('editId').value   = id;
       document.getElementById('contenido').value = contenido;
-      document.getElementById('ticketId').value = ticketId;
+      document.getElementById('ticketIdSel').value = ticketId;
+      const disp = document.getElementById('ticketSelDisplay');
+      disp.textContent = 'Editando comentario #' + id + ' del ticket #' + ticketId;
+      disp.classList.remove('vacio');
+      document.getElementById('contenido').focus();
     }
 
-    async function eliminar(id) {
-      if (!confirm('¿Eliminar este comentario?')) return;
+    async function eliminarComentario(id) {
+      if (!confirm('Eliminar este comentario?')) return;
       const res = await fetch('/comentarios/' + id, { method: 'DELETE', headers });
-      if (res.ok) {
-        msg.className = 'exito';
-        msg.textContent = '✅ Comentario eliminado';
-        cargarComentarios();
-      } else {
-        msg.className = 'error';
-        msg.textContent = '❌ Error al eliminar';
-      }
+      if (res.ok) { msg.className = 'exito'; msg.textContent = 'Comentario eliminado'; cargarComentarios(); }
+      else         { msg.className = 'error-msg'; msg.textContent = 'Error al eliminar'; }
     }
 
-    function limpiarFormulario() {
-      document.getElementById('editId').value = '';
+    function limpiar() {
+      document.getElementById('editId').value    = '';
       document.getElementById('contenido').value = '';
-      document.getElementById('ticketId').value = '';
+      document.getElementById('ticketIdSel').value = '';
+      ticketSeleccionadoId = null;
+      const disp = document.getElementById('ticketSelDisplay');
+      disp.textContent = 'Selecciona un ticket de la tabla de abajo';
+      disp.classList.add('vacio');
+      document.querySelectorAll('.ticket-row').forEach(r => r.classList.remove('seleccionado'));
       msg.textContent = '';
     }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function escapeJs(str) {
+      return String(str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    }
+
+    document.getElementById('buscarTitulo').addEventListener('keydown', e => { if (e.key === 'Enter') cargarTickets(); });
 
     cargarTickets();
     cargarComentarios();

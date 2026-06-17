@@ -5,9 +5,15 @@ const config = require('../config');
 const hashToken = (token) =>
   crypto.createHash('sha256').update(token).digest('hex');
 
+/* Incluye rol y nombre para que el frontend pueda leerlos del token */
 const signAccessToken = (usuario) =>
   jwt.sign(
-    { sub: usuario.id, email: usuario.email },
+    {
+      sub:    usuario.id,
+      email:  usuario.email,
+      nombre: usuario.nombre,
+      rol:    usuario.rol,
+    },
     config.jwt.accessSecret,
     { expiresIn: config.jwt.accessExpiresIn }
   );

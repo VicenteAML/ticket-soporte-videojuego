@@ -2,124 +2,108 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Registro — Ticket Soporte</title>
+  <title>Crear Cuenta — Ticket Soporte</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1b2838;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .card {
-      background-color: #2a475e;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-
-    h2 {
-      color: #c7d5e0;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      color: #c7d5e0;
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-
+    body { font-family: Arial, sans-serif; background: #1b2838; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background: #2a475e; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
+    h2 { color: #c7d5e0; text-align: center; margin-bottom: 1.5rem; font-size: 1.4rem; letter-spacing: 0.5px; }
+    label { color: #8f98a0; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; }
     input {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #4a7a9b;
-      border-radius: 4px;
-      background-color: #1b2838;
-      color: #fff;
-      margin-bottom: 1rem;
+      width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #3a5a6e; border-radius: 4px;
+      background: #1b2838; color: #fff; margin-bottom: 0.3rem; font-size: 0.95rem;
+      transition: border-color 0.2s;
     }
-
-    button {
-      width: 100%;
-      padding: 0.7rem;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
+    input:focus { outline: none; border-color: #4caf50; }
+    .campo-error { color: #ff6b6b; font-size: 0.8rem; margin-bottom: 0.8rem; display: none; }
+    .campo-error.visible { display: block; }
+    .btn {
+      width: 100%; padding: 0.75rem; background: #4caf50; color: white; border: none;
+      border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.4);
     }
-
-    button:hover { background-color: #45a049; }
-
-    #mensaje {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .error { color: #ff6b6b; }
-    .exito { color: #90ee90; }
+    .btn:hover { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(76,175,80,0.5); }
+    .btn:active { transform: translateY(0); }
+    #mensaje { margin-top: 1rem; text-align: center; font-size: 0.9rem; }
+    .error { color: #ff6b6b; } .exito { color: #90ee90; }
+    .link { margin-top: 1rem; text-align: center; font-size: 0.85rem; color: #8f98a0; }
+    .link a { color: #4caf50; text-decoration: none; }
+    .link a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>🎮 Crear cuenta</h2>
+    <h2>Crear Cuenta</h2>
 
-    <label>Nombre</label>
-    <input type="text" id="nombre" placeholder="Tu nombre" />
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" placeholder="Tu nombre completo" />
+    <span class="campo-error" id="err-nombre"></span>
 
-    <label>Email</label>
+    <label for="email">Email</label>
     <input type="email" id="email" placeholder="correo@ejemplo.com" />
+    <span class="campo-error" id="err-email"></span>
 
-    <label>Contraseña</label>
-    <input type="password" id="password" placeholder="Mínimo 6 caracteres" />
+    <label for="password">Contrasena</label>
+    <input type="password" id="password" placeholder="Minimo 6 caracteres" />
+    <span class="campo-error" id="err-password"></span>
 
-    <button onclick="registrar()">Registrarse</button>
-    <p style="text-align:center; margin-top:12px;">
-      ¿Ya tienes cuenta? <a href="login.html" style="color:#4caf50;">Iniciar sesión</a>
-    </p>
+    <button class="btn" onclick="registrar()">Crear Cuenta</button>
 
     <div id="mensaje"></div>
+    <div class="link">Ya tienes cuenta? <a href="/login.html">Iniciar sesion</a></div>
   </div>
 
   <script>
+    function limpiarErrores() {
+      document.querySelectorAll('.campo-error').forEach(e => { e.textContent = ''; e.classList.remove('visible'); });
+      document.getElementById('mensaje').textContent = '';
+    }
+
+    function mostrarCampoError(id, texto) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.classList.add('visible');
+    }
+
     async function registrar() {
-      const nombre = document.getElementById('nombre').value;
-      const email = document.getElementById('email').value;
+      limpiarErrores();
+      const nombre   = document.getElementById('nombre').value.trim();
+      const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const msg = document.getElementById('mensaje');
+      const msg      = document.getElementById('mensaje');
+      let hayError   = false;
+
+      if (!nombre)           { mostrarCampoError('err-nombre',   'El nombre es obligatorio');              hayError = true; }
+      if (!email)            { mostrarCampoError('err-email',    'El email es obligatorio');               hayError = true; }
+      if (!password)         { mostrarCampoError('err-password', 'La contrasena es obligatoria');          hayError = true; }
+      else if (password.length < 6) { mostrarCampoError('err-password', 'Minimo 6 caracteres'); hayError = true; }
+      if (hayError) return;
 
       try {
-        const res = await fetch('/auth/register', {
+        const res  = await fetch('/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre, email, password })
         });
-
         const data = await res.json();
 
         if (res.ok) {
-          msg.className = 'exito';
-          msg.textContent = '✅ Usuario registrado exitosamente. Redirigiendo...';
+          msg.className   = 'exito';
+          msg.textContent = 'Cuenta creada. Redirigiendo al login...';
           setTimeout(() => { window.location.href = '/login.html'; }, 1500);
         } else {
-          msg.className = 'error';
-          msg.textContent = data.message || 'Usuario no se ha podido registrar';
+          msg.className   = 'error';
+          msg.textContent = data.message || 'No se pudo crear la cuenta';
         }
-      } catch (e) {
-        msg.className = 'error';
-        msg.textContent = 'Error de conexión';
+      } catch {
+        msg.className   = 'error';
+        msg.textContent = 'Error de conexion';
       }
     }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') registrar(); });
   </script>
 </body>
 </html>
