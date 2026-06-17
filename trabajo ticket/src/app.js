@@ -6,6 +6,16 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
+// --- CORS para Nuxt ---
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+// --- Fin CORS ---
+
 app.set('trust proxy', 1);
 app.use(cors());
 app.use(morgan('dev'));

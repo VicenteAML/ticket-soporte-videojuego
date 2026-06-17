@@ -1,0 +1,91 @@
+<template>
+  <div class="page">
+    <div class="card">
+      <h2>Iniciar Sesion</h2>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" v-model="email" placeholder="correo@ejemplo.com" @keydown.enter="login" />
+      <span class="campo-error" v-if="errores.email">{{ errores.email }}</span>
+
+      <label for="password">Contrasena</label>
+      <input type="password" id="password" v-model="password" placeholder="Tu contrasena" @keydown.enter="login" />
+      <span class="campo-error" v-if="errores.password">{{ errores.password }}</span>
+
+      <button class="btn" @click="login">Ingresar</button>
+
+      <div class="mensaje" :class="mensajeTipo">{{ mensaje }}</div>
+      <div class="link">No tienes cuenta? <NuxtLink to="/register">Registrate aqui</NuxtLink></div>
+      <div class="link"><NuxtLink to="/reset-password">Olvidaste tu contrasena?</NuxtLink></div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+const { apiFetch, setTokens } = useAuth()
+
+const email = ref('')
+const password = ref('')
+const mensaje = ref('')
+const mensajeTipo = ref('')
+const errores = ref({})
+
+const login = async () => {
+  errores.value = {}
+  mensaje.value = ''
+  let hayError = false
+
+  if (!email.value.trim()) { errores.value.email = 'El email es obligatorio'; hayError = true }
+  if (!password.value) { errores.value.password = 'La contrasena es obligatoria'; hayError = true }
+  if (hayError) return
+
+  try {
+    const res = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: { email: email.value.trim(), password: password.value }
+    })
+    const data = await res.json()
+
+    if (res.ok) {
+      setTokens(data.data.accessToken, data.data.refreshToken)
+      mensajeTipo.value = 'exito'
+      mensaje.value = 'Sesion iniciada. Redirigiendo...'
+      setTimeout(() => navigateTo('/dashboard'), 900)
+    } else {
+      mensajeTipo.value = 'error'
+      mensaje.value = data.message || 'Credenciales incorrectas'
+    }
+  } catch {
+    mensajeTipo.value = 'error'
+    mensaje.value = 'Error de conexion'
+  }
+}
+</script>
+
+<style scoped>
+.page { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.card { background: #2a475e; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
+h2 { color: #c7d5e0; text-align: center; margin-bottom: 1.5rem; font-size: 1.4rem; letter-spacing: 0.5px; }
+label { color: #8f98a0; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; }
+input {
+  width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #3a5a6e; border-radius: 4px;
+  background: #1b2838; color: #fff; margin-bottom: 0.3rem; font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+input:focus { outline: none; border-color: #4caf50; }
+.campo-error { color: #ff6b6b; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; }
+.btn {
+  width: 100%; padding: 0.75rem; background: #4caf50; color: white; border: none;
+  border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer;
+  letter-spacing: 0.5px; margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.4);
+}
+.btn:hover { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(76,175,80,0.5); }
+.btn:active { transform: translateY(0); }
+.mensaje { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.2rem; }
+.error { color: #ff6b6b; }
+.exito { color: #90ee90; }
+.link { margin-top: 0.8rem; text-align: center; font-size: 0.85rem; color: #8f98a0; }
+.link a { color: #4caf50; text-decoration: none; }
+.link a:hover { text-decoration: underline; }
+</style>

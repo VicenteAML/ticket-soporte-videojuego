@@ -1,9 +1,10 @@
 'use strict';
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 const passwordController = require('../controllers/passwordController');
 
-router.post('/forgot-password', passwordController.forgotPassword);
-router.post('/reset-password', passwordController.resetPassword);
+// No requieren autenticacion (el usuario no tiene sesion)
+router.post('/forgot', passwordController.forgot);
+router.post('/reset',  passwordController.reset);
 
 module.exports = router;
